@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Persistent Clipboard</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f4f4f4;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    textarea {
+      width: 100%;
+      height: 80px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 10px;
+      margin-right: 5px;
+      cursor: pointer;
+    }
+
+    .item {
+      background: white;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .text {
+      flex: 1;
+      margin-right: 10px;
+      word-break: break-word;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🧠 Persistent Clipboard</h1>
+
+<textarea id="input" placeholder="Write something..."></textarea>
+<br/>
+<button onclick="addClipboard()">Add</button>
+<button onclick="clearAll()">Clear All</button>
+
+<div id="list"></div>
+
+<script>
+let clipboard = JSON.parse(localStorage.getItem("clipboard")) || [];
+
+function save() {
+  localStorage.setItem("clipboard", JSON.stringify(clipboard));
+}
+
+function render() {
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  clipboard.forEach((text, index) => {
+    const div = document.createElement("div");
+    div.className = "item";
+
+    div.innerHTML = `
+      <div class="text">${text}</div>
+      <button onclick="copyText(${index})">Copy</button>
+      <button onclick="deleteItem(${index})">Delete</button>
+    `;
+
+    list.appendChild(div);
+  });
+}
+
+function addClipboard() {
+  const input = document.getElementById("input");
+  if (input.value.trim() === "") return;
+
+  clipboard.unshift(input.value);
+  input.value = "";
+
+  save();
+  render();
+}
+
+function copyText(index) {
+  navigator.clipboard.writeText(clipboard[index]);
+  alert("Copied!");
+}
+
+function deleteItem(index) {
+  clipboard.splice(index, 1);
+  save();
+  render();
+}
+
+function clearAll() {
+  clipboard = [];
+  save();
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
